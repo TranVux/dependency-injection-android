@@ -3,6 +3,7 @@ package com.example.noteapp.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,24 +12,39 @@ import com.example.noteapp.adapter.NoteAdapter
 import com.example.noteapp.databinding.ActivityMainBinding
 import com.example.noteapp.model.Note
 import com.example.noteapp.viewmodel.NoteViewModel
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Qualifier
+import javax.inject.Singleton
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "NOTE_VIEW_MODEL"
 
-    lateinit var noteViewModel: NoteViewModel
+    private val noteViewModel: NoteViewModel by viewModels()
 
     private lateinit var binding: ActivityMainBinding
+
+//    @Inject
+//    lateinit var myServiceImpl: MyService
+    @Inject
+    lateinit var myCombineService: MyCombineService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
 
-//        Log.d(TAG, "MainActivity: ${noteViewModel.noteRepository} , $noteViewModel")
-
         initControls()
         initEvents()
+        Log.d(TAG, "onCreate: ${myCombineService.doSomeThing()}")
     }
 
     private fun initEvents() {
@@ -45,9 +61,9 @@ class MainActivity : AppCompatActivity() {
         binding.rvNote.layoutManager = LinearLayoutManager(this)
         binding.rvNote.adapter = adapter
 
-        noteViewModel.getAllNote().observe(this, {
+        noteViewModel.getAllNote().observe(this) {
             adapter.setNotes(it)
-        })
+        }
 
     }
 
@@ -61,3 +77,57 @@ class MainActivity : AppCompatActivity() {
         noteViewModel.deleteNote(it)
     }
 }
+
+//@InstallIn(SingletonComponent::class)
+//@Module
+//abstract class MyServiceModule {
+//    @Binds
+//    @Singleton
+//    abstract fun bindMyService(myServiceImpl: MyServiceImpl): MyService
+//}
+
+@InstallIn(SingletonComponent::class)
+@Module
+object MyServiceModule{
+    @Provides
+    @Singleton
+    @AnoMyService
+    fun provideMyService(): MyService = MyServiceImpl()
+
+    @Provides
+    @Singleton
+    @AnoOtherMyService
+    fun provideOtherMyService(): MyService = OtherMyServiceImpl()
+}
+
+class MyCombineService @Inject constructor(
+    @AnoMyService private val myServiceImpl: MyService,
+    @AnoOtherMyService private val otherMyServiceImpl: MyService
+){
+    fun doSomeThing() = "Hey yoo ${myServiceImpl.getSomeThing()}, ${otherMyServiceImpl.getSomeThing()}"
+}
+
+interface MyService {
+    fun getSomeThing(): String
+}
+
+class MyServiceImpl @Inject constructor() : MyService {
+    override fun getSomeThing(): String {
+        return "This is something"
+    }
+
+}
+
+class OtherMyServiceImpl @Inject constructor() : MyService {
+    override fun getSomeThing(): String {
+        return "This is something from other service"
+    }
+}
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AnoMyService
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AnoOtherMyService

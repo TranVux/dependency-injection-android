@@ -5,12 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.database.repository.NoteRepository
 import com.example.noteapp.model.Note
-import kotlinx.coroutines.GlobalScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
-class NoteViewModel @Inject constructor( val noteRepository: NoteRepository):ViewModel() {
+@HiltViewModel
+class NoteViewModel @Inject constructor(val noteRepository: NoteRepository) : ViewModel() {
 
     fun insertNote(note: Note) = viewModelScope.launch {
         noteRepository.insertNote(note)

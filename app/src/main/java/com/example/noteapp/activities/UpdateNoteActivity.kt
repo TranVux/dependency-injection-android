@@ -2,18 +2,20 @@ package com.example.noteapp.activities
 
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.noteapp.R
 import com.example.noteapp.databinding.ActivityUpdateNoteBinding
 import com.example.noteapp.model.Note
 import com.example.noteapp.viewmodel.NoteViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class UpdateNoteActivity : AppCompatActivity() {
     private val TAG = "NOTE_VIEW_MODEL"
-
-    lateinit var noteViewModel: NoteViewModel
-
+    private val noteViewModel: NoteViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
