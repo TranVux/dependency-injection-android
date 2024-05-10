@@ -7,25 +7,27 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.noteapp.NoteApplication
 import com.example.noteapp.R
 import com.example.noteapp.adapter.NoteAdapter
 import com.example.noteapp.databinding.ActivityMainBinding
+import com.example.noteapp.di.DaggerAppComponent
 import com.example.noteapp.model.Note
 import com.example.noteapp.viewmodel.NoteViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
+    @Inject
+    lateinit var noteViewModel: NoteViewModel
 
-    private val noteViewModel: NoteViewModel by lazy {
-        ViewModelProvider(
-            this,
-            NoteViewModel.NoteViewModelFactory(this.application)
-        )[NoteViewModel::class.java]
-    }
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+        val appComponent = (application as NoteApplication).component
+        appComponent.inject(this@MainActivity)
 
         initControls()
         initEvents()
@@ -45,9 +47,9 @@ class MainActivity : AppCompatActivity() {
         binding.rvNote.layoutManager = LinearLayoutManager(this)
         binding.rvNote.adapter = adapter
 
-        noteViewModel.getAllNote().observe(this, {
+        noteViewModel.getAllNote().observe(this) {
             adapter.setNotes(it)
-        })
+        }
 
     }
 

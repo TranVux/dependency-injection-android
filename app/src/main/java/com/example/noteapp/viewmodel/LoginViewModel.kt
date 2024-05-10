@@ -1,4 +1,6 @@
 package com.example.noteapp.viewmodel
 
-class LoginViewModel {
+import javax.inject.Inject
+
+class LoginViewModel @Inject constructor() {
 }
